@@ -1,64 +1,59 @@
 #!/usr/bin/python3
-""" Solve N Queens problem """
-
+"""Solution to the N-Queens puzzle"""
 import sys
+
+
+def print_board(board, n):
+    """prints allocated possitions to the queen"""
+    b = []
+
+    for i in range(n):
+        for j in range(n):
+            if j == board[i]:
+                b.append([i, j])
+    print(b)
+
+
+def safe_position(board, i, j, r):
+    """Determines whether the position is safe for the queen"""
+    return board[i] in (j, j - i + r, i - r + j)
+
+
+def determine_positions(board, row, n):
+    """Recursively finds all safe positions where the queen can be allocated"""
+    if row == n:
+        print_board(board, n)
+
+    else:
+        for j in range(n):
+            allowed = True
+            for i in range(row):
+                if safe_position(board, i, j, row):
+                    allowed = False
+            if allowed:
+                board[row] = j
+                determine_positions(board, row + 1, n)
+
+
+def create_board(size):
+    """Generates the board"""
+    return [0 * size for i in range(size)]
 
 
 if len(sys.argv) != 2:
     print("Usage: nqueens N")
-    sys.exit(1)
+    exit(1)
+
 try:
     n = int(sys.argv[1])
-except ValueError:
+except BaseException:
     print("N must be a number")
-    sys.exit(1)
+    exit(1)
+
 if (n < 4):
     print("N must be at least 4")
-    sys.exit(1)
+    exit(1)
 
-
-def n_queens(num):
-    """ prints every possible solution """
-    result = []
-
-    col = set()     # tracking the columns
-    neg_diagonal = set()    # (r - 1) tracking the negative diagonals
-    pos_diagonal = set()    # (r + 1)tracking the positive diagonals
-
-    board = [[] for num in range(num)]  # empty board
-
-    def backtracking(r):
-        """recursive function for backtracking """
-        if r == num:    # getting to the last row
-            copy = board.copy()     # copy the current board
-            result.append(copy)
-            return
-
-        for c in range(num):    # validating used columns and diagonals
-            if c in col or (r - c) in neg_diagonal or (r + c) in pos_diagonal:
-                continue
-
-            # record found colums and diagonals
-            col.add(c)
-            neg_diagonal.add(r - c)
-            pos_diagonal.add(r + c)
-            board[r] = [r, c]
-
-            # move to next row
-            backtracking(r + 1)
-
-            # undo movements
-            col.remove(c)
-            neg_diagonal.remove(r - c)
-            pos_diagonal.remove(r + c)
-
-            board[r] = []
-
-    backtracking(0)
-    return result
-
-
-if __name__ == '__main__':
-    boards = n_queens(n)
-    for board in boards:
-        print(board)
+board = create_board(int(n))
+row = 0
+determine_positions(board, row, int(n))
